@@ -1,0 +1,35 @@
+version: v1
+
+managed:
+  enabled: true
+  go_package_prefix:
+    default: github.com/ConnectAI-E/go-wenxin/gen/go
+    except:
+      - buf.build/googleapis/googleapis
+      - buf.build/envoyproxy/protoc-gen-validate
+      - buf.build/grpc-ecosystem/grpc-gateway
+
+plugins:
+  # Golang
+  - name: go
+    out: ./gen/go
+    opt:
+      - paths=source_relative
+  - name: go-grpc
+    out: ./gen/go
+    opt:
+      - paths=source_relative
+      - require_unimplemented_servers=false
+  - name: grpc-gateway
+    out: ./gen/go
+    opt:
+      - paths=source_relative
+      - allow_repeated_fields_in_body=true
+      - generate_unbound_methods=true
+  - name: openapiv2
+    out: ./output
+    strategy: all
+    opt:
+      - allow_repeated_fields_in_body=true
+      - output_format=yaml
+      - allow_merge=true,merge_file_name=apis

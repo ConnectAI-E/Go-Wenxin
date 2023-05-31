@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package baidubce.v1;
+
+option go_package = "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/v1;baidubcev1";
+option java_multiple_files = true;
+option java_outer_classname = "OauthProto";
+option java_package = "com.qiniai.wenxin.baidubce.v1";
+
+message TokenRequest {
+  // 是 	固定为client_credentials 	client_credentials
+  string grant_type = 1;
+  // 是 	应用的API Key，获取方式：https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjgn3 	Va***********uXV4
+  string client_id = 2;
+  // 是 	应用的Secret Key，获取方式：https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjgn3 	0r******************pVw2
+  string client_secret = 3;
+}
+
+message TokenResponse {
+  // 要获取的Access Token
+  string access_token = 1;
+  // 该参数忽略
+  string refresh_token = 2;
+  // Access Token的有效期(秒为单位，有效期30天)
+  string expires_in = 3;
+  // 该参数忽略
+  string scope = 4;
+  // 该参数忽略
+  string session_key = 5;
+  // 该参数忽略
+  string session_secret = 6;
+}

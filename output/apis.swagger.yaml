@@ -1,0 +1,84 @@
+swagger: "2.0"
+info:
+  title: baidubce/ai_custom/v1/wenxinworkshop.proto
+  version: version not set
+tags:
+  - name: OauthService
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /v1:passport/signup:
+    post:
+      operationId: OauthService_Token
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1TokenResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1TokenRequest'
+      tags:
+        - OauthService
+definitions:
+  protobufAny:
+    type: object
+    properties:
+      '@type':
+        type: string
+    additionalProperties: {}
+  rpcStatus:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/protobufAny'
+  v1TokenRequest:
+    type: object
+    properties:
+      grantType:
+        type: string
+        title: "是 \t固定为client_credentials \tclient_credentials"
+      clientId:
+        type: string
+        title: "是 \t应用的API Key，获取方式：https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjgn3 \tVa***********uXV4"
+      clientSecret:
+        type: string
+        title: "是 \t应用的Secret Key，获取方式：https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjgn3 \t0r******************pVw2"
+  v1TokenResponse:
+    type: object
+    properties:
+      accessToken:
+        type: string
+        title: 要获取的Access Token
+      refreshToken:
+        type: string
+        title: 该参数忽略
+      expiresIn:
+        type: string
+        title: Access Token的有效期(秒为单位，有效期30天)
+      scope:
+        type: string
+        title: 该参数忽略
+      sessionKey:
+        type: string
+        title: 该参数忽略
+      sessionSecret:
+        type: string
+        title: 该参数忽略
