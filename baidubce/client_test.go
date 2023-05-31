@@ -12,7 +12,7 @@ import (
 
 func getTestClient() (*Client, error) {
 	return New(&baidubcev1.TokenRequest{
-		// GrantType:    "client_credentials",
+		GrantType:    "client_credentials",
 		ClientId:     os.Getenv("TEST_BAIDU_CLIENT_ID"),
 		ClientSecret: os.Getenv("TEST_BAIDU_CLIENT_SECRET"),
 	})
