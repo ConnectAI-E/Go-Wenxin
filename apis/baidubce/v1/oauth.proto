@@ -22,7 +22,7 @@ message TokenResponse {
   // 该参数忽略
   string refresh_token = 2;
   // Access Token的有效期(秒为单位，有效期30天)
-  string expires_in = 3;
+  int32 expires_in = 3;
   // 该参数忽略
   string scope = 4;
   // 该参数忽略

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package baidubce.ai_custom.v1;
+
+import "baidubce/ai_custom/v1/wenxinworkshop.proto";
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/ai_custom/v1;ai_customv1";
+option java_multiple_files = true;
+option java_outer_classname = "WenxinworkshopServiceProto";
+option java_package = "com.qiniai.wenxin.baidubce.ai_custom.v1";
+
+service WenxinworkshopService {
+  // 文心一言云服务
+  rpc ChatCompletions(ChatCompletionsRequest) returns (ChatResponse) {
+    option (google.api.http) = {
+      post: "/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions"
+      body: "*"
+    };
+    option (google.api.method_signature) = "*";
+  }
+
+  rpc ChatEbInstant(ChatEbInstantRequest) returns (ChatResponse) {
+    option (google.api.http) = {
+      post: "/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant"
+      body: "*"
+    };
+    option (google.api.method_signature) = "*";
+  }
+}

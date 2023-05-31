@@ -3,13 +3,14 @@ info:
   title: baidubce/ai_custom/v1/wenxinworkshop.proto
   version: version not set
 tags:
+  - name: WenxinworkshopService
   - name: OauthService
 consumes:
   - application/json
 produces:
   - application/json
 paths:
-  /v1:passport/signup:
+  /oauth/2.0/token:
     post:
       operationId: OauthService_Token
       responses:
@@ -29,6 +30,47 @@ paths:
             $ref: '#/definitions/v1TokenRequest'
       tags:
         - OauthService
+  /rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions:
+    post:
+      summary: 文心一言云服务
+      operationId: WenxinworkshopService_ChatCompletions
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ChatResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1ChatCompletionsRequest'
+      tags:
+        - WenxinworkshopService
+  /rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant:
+    post:
+      operationId: WenxinworkshopService_ChatEbInstant
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ChatResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1ChatEbInstantRequest'
+      tags:
+        - WenxinworkshopService
 definitions:
   protobufAny:
     type: object
@@ -49,6 +91,97 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/protobufAny'
+  v1ChatCompletionsRequest:
+    type: object
+    properties:
+      messages:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1Message'
+        title: |-
+          是 	聊天上下文信息。说明：
+          （1）messages成员不能为空，1个成员表示单轮对话，多个成员表示多轮对话。
+          （2）最后一个message为当前请求的信息，前面的message为历史对话信息。
+          （3）必须为奇数个成员，成员中message的role必须依次为user、assistant。
+          （4）最后一个message的content长度（即此轮对话的问题）不能超过2000个字符；如果messages中content总长度大于2000字符，系统会依次遗忘最早的历史会话，直到content的总长度不超过2000个字符。
+      stream:
+        type: boolean
+        title: "否 \t是否以流式接口的形式返回数据，默认false。"
+      user:
+        type: string
+        title: "否 \t表示最终用户的唯一标识符，可以监视和检测滥用行为，防止接口恶意调用。"
+    title: 文心一言云服务
+  v1ChatEbInstantRequest:
+    type: object
+    properties:
+      messages:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1Message'
+        title: |-
+          是 	聊天上下文信息。说明：
+          （1）messages成员不能为空，1个成员表示单轮对话，多个成员表示多轮对话。
+          （2）最后一个message为当前请求的信息，前面的message为历史对话信息。
+          （3）必须为奇数个成员，成员中message的role必须依次为user、assistant。
+          （4）最后一个message的content长度（即此轮对话的问题）不能超过2000个字符；如果messages中content总长度大于2000字符，系统会依次遗忘最早的历史会话，直到content的总长度不超过2000个字符。
+      stream:
+        type: boolean
+        title: "否 \t是否以流式接口的形式返回数据，默认false。"
+      user:
+        type: string
+        title: "否 \t表示最终用户的唯一标识符，可以监视和检测滥用行为，防止接口恶意调用。"
+    title: ErnieBot-Lite
+  v1ChatResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        title: 本轮对话的id。
+      object:
+        type: string
+        title: |-
+          回包类型。
+          chat.completion：多轮对话返回
+      created:
+        type: integer
+        format: int32
+        title: 时间戳。
+      sentenceId:
+        type: integer
+        format: int32
+        title: 表示当前子句的序号。只有在流式接口模式下会返回该字段。
+      isEnd:
+        type: boolean
+        title: 表示当前子句是否是最后一句。只有在流式接口模式下会返回该字段。
+      result:
+        type: string
+        title: 对话返回结果。
+      needClearHistory:
+        type: boolean
+        title: |-
+          表示用户输入是否存在安全，是否关闭当前会话，清理历史回话信息。
+          true：是，表示用户输入存在安全风险，建议关闭当前会话，清理历史会话信息。
+          false：否，表示用户输入无安全风险。
+      usage:
+        $ref: '#/definitions/v1Usage'
+        title: token统计信息，token数 = 汉字数+单词数*1.3 （仅为估算逻辑）。
+    title: |-
+      文心一言云服务
+      ErnieBot-Lite
+  v1Message:
+    type: object
+    properties:
+      role:
+        type: string
+        title: |-
+          当前支持以下：
+          user: 表示用户
+          assistant: 表示对话助手
+      content:
+        type: string
+        title: 对话内容，不能为空。
   v1TokenRequest:
     type: object
     properties:
@@ -71,7 +204,8 @@ definitions:
         type: string
         title: 该参数忽略
       expiresIn:
-        type: string
+        type: integer
+        format: int32
         title: Access Token的有效期(秒为单位，有效期30天)
       scope:
         type: string
@@ -82,3 +216,18 @@ definitions:
       sessionSecret:
         type: string
         title: 该参数忽略
+  v1Usage:
+    type: object
+    properties:
+      promptTokens:
+        type: integer
+        format: int32
+        title: 问题tokens数。
+      completionTokens:
+        type: integer
+        format: int32
+        title: 回答tokens数。
+      totalTokens:
+        type: integer
+        format: int32
+        title: tokens总数。
