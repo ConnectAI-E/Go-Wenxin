@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package baidubce.v1;
 
+import "baidubce/v1/oauth.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
-import "baidubce/v1/oauth.proto";
 
 option go_package = "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/v1;baidubcev1";
 option java_multiple_files = true;
@@ -14,9 +14,9 @@ option java_package = "com.qiniai.wenxin.baidubce.v1";
 service OauthService {
   rpc Token(TokenRequest) returns (TokenResponse) {
     option (google.api.http) = {
-      post: "/v1:passport/signup"
+      post: "/oauth/2.0/token"
       body: "*"
     };
     option (google.api.method_signature) = "*";
   }
- }
+}
