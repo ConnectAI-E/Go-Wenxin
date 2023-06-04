@@ -53,3 +53,102 @@ func main() {
 }
 
 ```
+
+
+### 快速上手 examples:
+
+<details>
+<summary>ErnieBot completion</summary>
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"github.com/ConnectAI-E/go-wenxin/baidubce"
+	ai_customv1 "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/ai_custom/v1"
+	baidubcev1 "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/v1"
+)
+
+//init client
+
+func main() {
+	ctx := context.Background()
+	var opts []baidubce.Option
+	opts = append(opts, baidubce.WithTokenRequest(&baidubcev1.TokenRequest{
+		GrantType:    "client_credentials",
+		ClientId:     "YOUR BAIDU_API Key",
+		ClientSecret: "YOUR BAIDU_SECRET Key",
+	}))
+	client, _ := baidubce.New(opts...)
+
+	//chat
+	req := &ai_customv1.ChatCompletionsRequest{
+		User: "feishu-user",
+		Messages: []*ai_customv1.Message{
+			{Role: "user", Content: "嗨"},
+		},
+	}
+	res, _ := client.ChatCompletions(ctx, req)
+
+	fmt.Println(res.Result) // output: 嗨！有什么我可以帮助你的吗？
+}
+```
+</details>
+
+
+<details>
+<summary>ErnieBot stream completion</summary>
+
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"github.com/ConnectAI-E/go-wenxin/baidubce"
+	ai_customv1 "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/ai_custom/v1"
+	baidubcev1 "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/v1"
+	"io"
+)
+
+//init client
+
+func main() {
+	ctx := context.Background()
+	var opts []baidubce.Option
+	opts = append(opts, baidubce.WithTokenRequest(&baidubcev1.TokenRequest{
+		GrantType:    "client_credentials",
+		ClientId:     "YOUR BAIDU_API Key",
+		ClientSecret: "YOUR BAIDU_SECRET Key",
+	}))
+	client, _ := baidubce.New(opts...)
+
+	//chat
+	req := &ai_customv1.ChatCompletionsRequest{
+		Stream: true,
+		Messages: []*ai_customv1.Message{
+			{Role: "user",
+				Content: "用鲁迅的口气写一封道歉信，给领导说对不起，我不该在会议上睡觉。200字左右"},
+		},
+	}
+	stream, _ := client.ChatCompletionsStream(ctx, req)
+	defer stream.CloseSend()
+	for {
+		response, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+		fmt.Printf(response.Result)
+	}
+
+}
+
+```
+</details>
