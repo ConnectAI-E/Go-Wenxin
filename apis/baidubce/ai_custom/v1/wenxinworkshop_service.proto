@@ -21,6 +21,14 @@ service WenxinworkshopService {
     option (google.api.method_signature) = "*";
   }
 
+  rpc ChatCompletionsStream(ChatCompletionsRequest) returns (stream ChatResponse) {
+    option (google.api.http) = {
+      post: "/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions:stream"
+      body: "*"
+    };
+    option (google.api.method_signature) = "*";
+  }
+
   rpc ChatEbInstant(ChatEbInstantRequest) returns (ChatResponse) {
     option (google.api.http) = {
       post: "/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant"

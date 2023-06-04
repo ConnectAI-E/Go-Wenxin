@@ -2,11 +2,14 @@ package baidubce
 
 import (
 	"context"
+	"errors"
+	"io"
 	"os"
 	"testing"
 
 	ai_customv1 "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/ai_custom/v1"
 	baidubcev1 "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/v1"
+	"github.com/ConnectAI-E/go-wenxin/internal"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -36,6 +39,36 @@ func TestChatCompletions(t *testing.T) {
 	})
 	assert.Nil(t, err)
 	assert.NotNil(t, res)
+}
+
+func TestChatCompletionsStream(t *testing.T) {
+	cli, err := getTestClient()
+	assert.Nil(t, err)
+	assert.NotNil(t, cli)
+
+	res, err := cli.ChatCompletionsStream(context.Background(), &ai_customv1.ChatCompletionsRequest{
+		Stream: true,
+		Messages: []*ai_customv1.Message{
+			{Role: "user", Content: "hi"},
+		},
+	})
+	assert.Nil(t, err)
+	assert.NotNil(t, res)
+
+	hasEnd := false
+	for {
+		response, err := res.Recv()
+		if errors.Is(err, io.EOF) || errors.Is(err, internal.ErrTooManyEmptyStreamMessages) {
+			break
+		}
+		assert.Nil(t, err)
+		assert.NotNil(t, response)
+		if response.IsEnd {
+			hasEnd = true
+			break
+		}
+	}
+	assert.True(t, hasEnd)
 }
 
 func TestChatEbInstant(t *testing.T) {

@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	WenxinworkshopService_ChatCompletions_FullMethodName = "/baidubce.ai_custom.v1.WenxinworkshopService/ChatCompletions"
-	WenxinworkshopService_ChatEbInstant_FullMethodName   = "/baidubce.ai_custom.v1.WenxinworkshopService/ChatEbInstant"
+	WenxinworkshopService_ChatCompletions_FullMethodName       = "/baidubce.ai_custom.v1.WenxinworkshopService/ChatCompletions"
+	WenxinworkshopService_ChatCompletionsStream_FullMethodName = "/baidubce.ai_custom.v1.WenxinworkshopService/ChatCompletionsStream"
+	WenxinworkshopService_ChatEbInstant_FullMethodName         = "/baidubce.ai_custom.v1.WenxinworkshopService/ChatEbInstant"
 )
 
 // WenxinworkshopServiceClient is the client API for WenxinworkshopService service.
@@ -29,6 +30,7 @@ const (
 type WenxinworkshopServiceClient interface {
 	// 文心一言云服务
 	ChatCompletions(ctx context.Context, in *ChatCompletionsRequest, opts ...grpc.CallOption) (*ChatResponse, error)
+	ChatCompletionsStream(ctx context.Context, in *ChatCompletionsRequest, opts ...grpc.CallOption) (WenxinworkshopService_ChatCompletionsStreamClient, error)
 	ChatEbInstant(ctx context.Context, in *ChatEbInstantRequest, opts ...grpc.CallOption) (*ChatResponse, error)
 }
 
@@ -49,6 +51,38 @@ func (c *wenxinworkshopServiceClient) ChatCompletions(ctx context.Context, in *C
 	return out, nil
 }
 
+func (c *wenxinworkshopServiceClient) ChatCompletionsStream(ctx context.Context, in *ChatCompletionsRequest, opts ...grpc.CallOption) (WenxinworkshopService_ChatCompletionsStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &WenxinworkshopService_ServiceDesc.Streams[0], WenxinworkshopService_ChatCompletionsStream_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &wenxinworkshopServiceChatCompletionsStreamClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type WenxinworkshopService_ChatCompletionsStreamClient interface {
+	Recv() (*ChatResponse, error)
+	grpc.ClientStream
+}
+
+type wenxinworkshopServiceChatCompletionsStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *wenxinworkshopServiceChatCompletionsStreamClient) Recv() (*ChatResponse, error) {
+	m := new(ChatResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *wenxinworkshopServiceClient) ChatEbInstant(ctx context.Context, in *ChatEbInstantRequest, opts ...grpc.CallOption) (*ChatResponse, error) {
 	out := new(ChatResponse)
 	err := c.cc.Invoke(ctx, WenxinworkshopService_ChatEbInstant_FullMethodName, in, out, opts...)
@@ -64,6 +98,7 @@ func (c *wenxinworkshopServiceClient) ChatEbInstant(ctx context.Context, in *Cha
 type WenxinworkshopServiceServer interface {
 	// 文心一言云服务
 	ChatCompletions(context.Context, *ChatCompletionsRequest) (*ChatResponse, error)
+	ChatCompletionsStream(*ChatCompletionsRequest, WenxinworkshopService_ChatCompletionsStreamServer) error
 	ChatEbInstant(context.Context, *ChatEbInstantRequest) (*ChatResponse, error)
 }
 
@@ -73,6 +108,9 @@ type UnimplementedWenxinworkshopServiceServer struct {
 
 func (UnimplementedWenxinworkshopServiceServer) ChatCompletions(context.Context, *ChatCompletionsRequest) (*ChatResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChatCompletions not implemented")
+}
+func (UnimplementedWenxinworkshopServiceServer) ChatCompletionsStream(*ChatCompletionsRequest, WenxinworkshopService_ChatCompletionsStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method ChatCompletionsStream not implemented")
 }
 func (UnimplementedWenxinworkshopServiceServer) ChatEbInstant(context.Context, *ChatEbInstantRequest) (*ChatResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChatEbInstant not implemented")
@@ -105,6 +143,27 @@ func _WenxinworkshopService_ChatCompletions_Handler(srv interface{}, ctx context
 		return srv.(WenxinworkshopServiceServer).ChatCompletions(ctx, req.(*ChatCompletionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
+}
+
+func _WenxinworkshopService_ChatCompletionsStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ChatCompletionsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(WenxinworkshopServiceServer).ChatCompletionsStream(m, &wenxinworkshopServiceChatCompletionsStreamServer{stream})
+}
+
+type WenxinworkshopService_ChatCompletionsStreamServer interface {
+	Send(*ChatResponse) error
+	grpc.ServerStream
+}
+
+type wenxinworkshopServiceChatCompletionsStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *wenxinworkshopServiceChatCompletionsStreamServer) Send(m *ChatResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 func _WenxinworkshopService_ChatEbInstant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -141,6 +200,12 @@ var WenxinworkshopService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _WenxinworkshopService_ChatEbInstant_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ChatCompletionsStream",
+			Handler:       _WenxinworkshopService_ChatCompletionsStream_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "baidubce/ai_custom/v1/wenxinworkshop_service.proto",
 }
