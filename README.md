@@ -17,27 +17,39 @@
 
 ### 示例
 
-> 更多使用方法参考 test 文件
-
 ```go
-import "github.com/ConnectAI-E/go-wenxin/baidubce"
+package main
 
-cli, err := New(&baidubcev1.TokenRequest{
-  GrantType:    "client_credentials",
-  ClientId:     os.Getenv("TEST_BAIDU_CLIENT_ID"),
-  ClientSecret: os.Getenv("TEST_BAIDU_CLIENT_SECRET"),
-})
-if err != nil {
-  panic(err)
+import (
+	"context"
+	"fmt"
+	"github.com/ConnectAI-E/go-wenxin/baidubce"
+	ai_customv1 "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/ai_custom/v1"
+	baidubcev1 "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/v1"
+)
+
+//init client
+
+func main() {
+	ctx := context.Background()
+	var opts []baidubce.Option
+	opts = append(opts, baidubce.WithTokenRequest(&baidubcev1.TokenRequest{
+		GrantType:    "client_credentials",
+		ClientId:     "YOUR BAIDU_API Key",
+		ClientSecret: "YOUR BAIDU_SECRET Key",
+	}))
+	client, _ := baidubce.New(opts...)
+
+	//chat
+	req := &ai_customv1.ChatCompletionsRequest{
+		User: "feishu-user",
+		Messages: []*ai_customv1.Message{
+			{Role: "user", Content: "嗨"},
+		},
+	}
+	res, _ := client.ChatCompletions(ctx, req)
+
+	fmt.Println(res.Result) // output: 嗨！有什么我可以帮助你的吗？
 }
 
-res, err := cli.ChatEbInstant(context.Background(), &ai_customv1.ChatEbInstantRequest{
-  Messages: []*ai_customv1.Message{
-    {Role: "user", Content: "hi"},
-  },
-})
-if err != nil {
-  panic(err)
-}
-log.Println(res.Result) // output: 嗨！有什么我可以帮助你的吗？
 ```
