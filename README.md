@@ -1,3 +1,9 @@
+
+<p align='center'>
+    <img src='https://github.com/ConnectAI-E/go-wenxin/assets/50035229/84af1dfe-43c2-456b-85ce-52e787e034cb' alt='' width='1300'/>
+</p>
+
+
 ## Baidu Wenxin SDK
 
 > 封装 百度文心一言 API
