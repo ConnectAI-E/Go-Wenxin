@@ -7,7 +7,7 @@
 1. 全接口字段注释
 2. ChatCompletions 文心一言云服务
 3. ChatEbInstant ErnieBot-Lite
-4. 更多功能同步中。。。
+4. 无缝对接官方文档：单轮问答、历史记忆问答、流返回
 
 ### 使用方法
 
