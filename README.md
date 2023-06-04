@@ -6,7 +6,7 @@
 
 ## Baidu Wenxin SDK
 
-> 封装 百度文心一言 API
+> 百度文心一言 golang sdk 
 
 ### 功能及特点
 
