@@ -61,7 +61,7 @@ func main() {
 ```
 
 
-### 快速上手 examples:
+### 快速上手:
 
 <details>
 <summary>ErnieBot completion</summary>
