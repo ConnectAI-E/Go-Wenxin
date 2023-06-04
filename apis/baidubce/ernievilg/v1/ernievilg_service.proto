@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package baidubce.ernievilg.v1;
+
+import "baidubce/ernievilg/v1/ernievilg.proto";
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/ernievilg/v1;ernievilgv1";
+option java_multiple_files = true;
+option java_outer_classname = "ErnievilgServiceProto";
+option java_package = "com.qiniai.wenxin.baidubce.ernievilg.v1";
+
+service ErnievilgService {
+  rpc Txt2ImgV2(Txt2ImgV2Request) returns (Txt2ImgV2Response) {
+    option (google.api.http) = {
+      post: "/rpc/2.0/ernievilg/v1/txt2imgv2"
+      body: "*"
+    };
+    option (google.api.method_signature) = "*";
+  }
+
+  rpc GetImgV2(GetImgV2Request) returns (GetImgV2Response) {
+    option (google.api.http) = {
+      post: "/rpc/2.0/ernievilg/v1/getImgv2"
+      body: "*"
+    };
+    option (google.api.method_signature) = "*";
+  }
+}

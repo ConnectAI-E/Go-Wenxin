@@ -4,6 +4,7 @@ info:
   version: version not set
 tags:
   - name: WenxinworkshopService
+  - name: ErnievilgService
   - name: OauthService
 consumes:
   - application/json
@@ -30,6 +31,27 @@ paths:
             $ref: '#/definitions/v1TokenRequest'
       tags:
         - OauthService
+  /rpc/2.0/ai_custom/v1/wenxinworkshop/balance:
+    post:
+      summary: 'TODO: find api'
+      operationId: WenxinworkshopService_Balance
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1BalanceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1BalanceRequest'
+      tags:
+        - WenxinworkshopService
   /rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions:
     post:
       summary: 文心一言云服务
@@ -97,7 +119,80 @@ paths:
             $ref: '#/definitions/v1ChatEbInstantRequest'
       tags:
         - WenxinworkshopService
+  /rpc/2.0/ernievilg/v1/getImgv2:
+    post:
+      operationId: ErnievilgService_GetImgV2
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetImgV2Response'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1GetImgV2Request'
+      tags:
+        - ErnievilgService
+  /rpc/2.0/ernievilg/v1/txt2imgv2:
+    post:
+      operationId: ErnievilgService_Txt2ImgV2
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Txt2ImgV2Response'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1Txt2ImgV2Request'
+      tags:
+        - ErnievilgService
 definitions:
+  GetImgV2ResponseFinalImage:
+    type: object
+    properties:
+      imgUrl:
+        type: string
+        title: 是 图片所在 BOS http 地址，默认 1 小时失效
+      height:
+        type: integer
+        format: int64
+        title: 是 图片像素信息-高度
+      width:
+        type: integer
+        format: int64
+        title: 是 图片像素信息-宽度
+      imgApproveConclusion:
+        type: string
+        title: '是 图片机审结果，"block"：输入图片违规；"review": 输入图片疑似违规；"pass": 输入图片未发现问题；'
+  GetImgV2ResponseTaskResult:
+    type: object
+    properties:
+      subTaskStatus:
+        type: string
+        title: 是 单风格图片状态。有 INIT（初始化），WAIT（排队中）, RUNNING（生成中）, FAILED（失败）, SUCCESS（成功）四种状态，只有 SUCCESS 为成功状态，进行计费
+      subTaskProgress:
+        type: integer
+        format: int32
+        title: 否 单任务图片生成进度，进度包含2种，0为未处理完，1为处理完成
+      subTaskErrorCode:
+        type: string
+        title: 是 单风格任务错误码。0:正常；501:文本黄反拦截；201:模型生图失败
+      finalImageList:
+        $ref: '#/definitions/GetImgV2ResponseFinalImage'
+        title: "是 \t [] \t单风格任务产出的最终图列表"
   protobufAny:
     type: object
     properties:
@@ -117,6 +212,20 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/protobufAny'
+  v1BalanceRequest:
+    type: object
+  v1BalanceResponse:
+    type: object
+    properties:
+      TotalGranted:
+        type: number
+        format: float
+      TotalUsed:
+        type: number
+        format: float
+      TotalAvailable:
+        type: number
+        format: float
   v1ChatCompletionsRequest:
     type: object
     properties:
@@ -196,6 +305,42 @@ definitions:
     title: |-
       文心一言云服务
       ErnieBot-Lite
+  v1GetImgV2Request:
+    type: object
+    properties:
+      taskId:
+        type: string
+        title: 是 从提交请求的提交接口的返回值中获取，可使用task_id 查询总任务
+  v1GetImgV2Response:
+    type: object
+    properties:
+      logId:
+        type: string
+        format: uint64
+        title: 是 请求唯一标识码
+      data:
+        $ref: '#/definitions/v1GetImgV2ResponseData'
+        title: 是 返回数据
+  v1GetImgV2ResponseData:
+    type: object
+    properties:
+      taskId:
+        type: string
+        format: uint64
+        title: 是 任务 Id
+      taskStatus:
+        type: string
+        title: 是 计算总状态。有 INIT（初始化），WAIT（排队中）, RUNNING（生成中）, FAILED（失败）, SUCCESS（成功）四种状态，只有 SUCCESS 为成功状态，进行计费
+      taskProgress:
+        type: integer
+        format: int32
+        title: 是 图片生成总进度，进度包含2种，0为未处理完，1为处理完成
+      subTaskResultList:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/GetImgV2ResponseTaskResult'
+        title: "是 \t[] \t子任务生成结果列表"
   v1Message:
     type: object
     properties:
@@ -242,6 +387,64 @@ definitions:
       sessionSecret:
         type: string
         title: 该参数忽略
+  v1Txt2ImgV2Request:
+    type: object
+    properties:
+      prompt:
+        type: string
+        title: 是 生图的文本描述。仅支持中文、日常标点符号。不支持英文，特殊符号，限制 200 字
+      version:
+        type: string
+        title: 否 模型版本，支持 v1、v2，默认为v2，v2 为最新模型，比 v1 在准确度、精细度上有比较明显的提升，且 v2 支持更多尺寸
+      width:
+        type: integer
+        format: int64
+        title: 是 图片宽度，v1 版本支持：1024x1024、1280x720、720x1280、2048x2048、2560x1440、1440x2560；v2 版本支持：512x512、640x360、360x640、1024x1024、1280x720、720x1280、2048x2048、2560x1440、1440x2560
+      height:
+        type: integer
+        format: int64
+        title: 是 图片高度，v1 版本支持：1024x1024、1280x720、720x1280、2048x2048、2560x1440、1440x2560；v2 版本支持：512x512、640x360、360x640、1024x1024、1280x720、720x1280、2048x2048、2560x1440、1440x2560
+      imageNum:
+        type: integer
+        format: int32
+        title: "否 \tnumber \t生成图片数量，默认一张，支持生成 1-8 张"
+      image:
+        type: string
+        title: 否，和url/pdf_file 三选一 参考图，需 base64 编码，大小不超过 10M，最短边至少 15px，最长边最大 8192px，支持jpg/jpeg/png/bmp 格式。优先级：image > url > pdf_file，当image 字段存在时，url、pdf_file 字段失效
+      url:
+        type: string
+        title: 否，和image/pdf_file 三选一 参考图完整 url，url 长度不超过 1024 字节，url 对应的图片需 base64 编码，大小不超过 10M，最短边至少 15px，最长边最大8192px，支持 jpg/jpeg/png/bmp 格式。优先级：image > url > pdf_file，当image 字段存在时，url string 字段失效请注意关闭 = 1; URL 防盗链
+      pdfFile:
+        type: string
+        title: 否，和image/url 三选一 参考图 PDF 文件，base64 编码，大小不超过10M，最短边至少 15px，最长边最大 8192px 。优先级：image > url > pdf_file，当image 字段存在时，url、pdf_file 字段失效
+      pdfFileNum:
+        type: string
+        title: 否 需要识别的 PDF 文件的对应页码，当pdf_file 参数有效时，识别传入页码的对应页面内容，若不传入，则默认识别第 1 页
+      changeDegree:
+        type: integer
+        format: int64
+        title: 否，当 image、url或 pdf_file 字段存在时，为必需项 参考图影响因子，支持 1-10 内；数值越大参考图影响越大
+    title: Txt2ImgV2Request /rpc/2.0/ernievilg/v1/txt2imgv2
+  v1Txt2ImgV2Response:
+    type: object
+    properties:
+      logId:
+        type: string
+        format: uint64
+        title: 请求唯一标识码
+      data:
+        $ref: '#/definitions/v1Txt2ImgV2ResponseData'
+        title: 返回数据
+  v1Txt2ImgV2ResponseData:
+    type: object
+    properties:
+      primaryTaskId:
+        type: string
+        format: uint64
+        title: 生成图片任务long类型 id，与“task_id”参数输出相同，该 id 可用于查询任务状态
+      taskId:
+        type: string
+        title: 生成图片任务string类型 id，与“primary_task_id”参数输出相同，该 id 可用于查询任务状态
   v1Usage:
     type: object
     properties:

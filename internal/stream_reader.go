@@ -5,18 +5,15 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"io"
-	"log"
 	"net/http"
 
+	"github.com/ConnectAI-E/go-wenxin/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
-var (
-	ErrTooManyEmptyStreamMessages = errors.New("stream has sent too many empty messages")
-)
+var headerData = []byte("data: ")
 
 type StreamReader[T any] interface {
 	Recv() (response T, err error)
@@ -37,7 +34,7 @@ var _ grpc.ClientStream = new(streamReader[any])
 
 func NewStreamReader[T any](rd io.Reader) StreamReader[T] {
 	return &streamReader[T]{
-		emptyMessagesLimit: 30,
+		emptyMessagesLimit: 100,
 		reader:             bufio.NewReader(rd),
 	}
 }
@@ -52,17 +49,15 @@ func (stream *streamReader[T]) Recv() (response T, err error) {
 
 waitForData:
 	line, err := stream.reader.ReadBytes('\n')
-	log.Println("reader:", string(line))
 	if err != nil {
 		return
 	}
 
-	var headerData = []byte("data: ")
 	line = bytes.TrimSpace(line)
 	if !bytes.HasPrefix(line, headerData) {
 		emptyMessagesCount++
 		if emptyMessagesCount > stream.emptyMessagesLimit {
-			err = ErrTooManyEmptyStreamMessages
+			err = errors.ErrTooManyEmptyStreamMessages
 			return
 		}
 

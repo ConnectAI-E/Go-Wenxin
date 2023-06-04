@@ -22,6 +22,7 @@ const (
 	WenxinworkshopService_ChatCompletions_FullMethodName       = "/baidubce.ai_custom.v1.WenxinworkshopService/ChatCompletions"
 	WenxinworkshopService_ChatCompletionsStream_FullMethodName = "/baidubce.ai_custom.v1.WenxinworkshopService/ChatCompletionsStream"
 	WenxinworkshopService_ChatEbInstant_FullMethodName         = "/baidubce.ai_custom.v1.WenxinworkshopService/ChatEbInstant"
+	WenxinworkshopService_Balance_FullMethodName               = "/baidubce.ai_custom.v1.WenxinworkshopService/Balance"
 )
 
 // WenxinworkshopServiceClient is the client API for WenxinworkshopService service.
@@ -32,6 +33,8 @@ type WenxinworkshopServiceClient interface {
 	ChatCompletions(ctx context.Context, in *ChatCompletionsRequest, opts ...grpc.CallOption) (*ChatResponse, error)
 	ChatCompletionsStream(ctx context.Context, in *ChatCompletionsRequest, opts ...grpc.CallOption) (WenxinworkshopService_ChatCompletionsStreamClient, error)
 	ChatEbInstant(ctx context.Context, in *ChatEbInstantRequest, opts ...grpc.CallOption) (*ChatResponse, error)
+	// TODO: find api
+	Balance(ctx context.Context, in *BalanceRequest, opts ...grpc.CallOption) (*BalanceResponse, error)
 }
 
 type wenxinworkshopServiceClient struct {
@@ -92,6 +95,15 @@ func (c *wenxinworkshopServiceClient) ChatEbInstant(ctx context.Context, in *Cha
 	return out, nil
 }
 
+func (c *wenxinworkshopServiceClient) Balance(ctx context.Context, in *BalanceRequest, opts ...grpc.CallOption) (*BalanceResponse, error) {
+	out := new(BalanceResponse)
+	err := c.cc.Invoke(ctx, WenxinworkshopService_Balance_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WenxinworkshopServiceServer is the server API for WenxinworkshopService service.
 // All implementations should embed UnimplementedWenxinworkshopServiceServer
 // for forward compatibility
@@ -100,6 +112,8 @@ type WenxinworkshopServiceServer interface {
 	ChatCompletions(context.Context, *ChatCompletionsRequest) (*ChatResponse, error)
 	ChatCompletionsStream(*ChatCompletionsRequest, WenxinworkshopService_ChatCompletionsStreamServer) error
 	ChatEbInstant(context.Context, *ChatEbInstantRequest) (*ChatResponse, error)
+	// TODO: find api
+	Balance(context.Context, *BalanceRequest) (*BalanceResponse, error)
 }
 
 // UnimplementedWenxinworkshopServiceServer should be embedded to have forward compatible implementations.
@@ -114,6 +128,9 @@ func (UnimplementedWenxinworkshopServiceServer) ChatCompletionsStream(*ChatCompl
 }
 func (UnimplementedWenxinworkshopServiceServer) ChatEbInstant(context.Context, *ChatEbInstantRequest) (*ChatResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChatEbInstant not implemented")
+}
+func (UnimplementedWenxinworkshopServiceServer) Balance(context.Context, *BalanceRequest) (*BalanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Balance not implemented")
 }
 
 // UnsafeWenxinworkshopServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -184,6 +201,24 @@ func _WenxinworkshopService_ChatEbInstant_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WenxinworkshopService_Balance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BalanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WenxinworkshopServiceServer).Balance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WenxinworkshopService_Balance_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WenxinworkshopServiceServer).Balance(ctx, req.(*BalanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // WenxinworkshopService_ServiceDesc is the grpc.ServiceDesc for WenxinworkshopService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -198,6 +233,10 @@ var WenxinworkshopService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChatEbInstant",
 			Handler:    _WenxinworkshopService_ChatEbInstant_Handler,
+		},
+		{
+			MethodName: "Balance",
+			Handler:    _WenxinworkshopService_Balance_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

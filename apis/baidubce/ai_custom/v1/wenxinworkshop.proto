@@ -76,3 +76,11 @@ message ChatResponse {
   // token统计信息，token数 = 汉字数+单词数*1.3 （仅为估算逻辑）。
   Usage usage = 8;
 }
+
+message BalanceRequest {}
+
+message BalanceResponse {
+  float TotalGranted = 1;
+  float TotalUsed = 2;
+  float TotalAvailable = 3;
+}

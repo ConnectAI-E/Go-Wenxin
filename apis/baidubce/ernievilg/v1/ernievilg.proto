@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package baidubce.ernievilg.v1;
+
+option go_package = "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/ernievilg/v1;ernievilgv1";
+option java_multiple_files = true;
+option java_outer_classname = "WenxinworkshopProto";
+option java_package = "com.qiniai.wenxin.baidubce.ernievilg.v1";
+
+// Txt2ImgV2Request /rpc/2.0/ernievilg/v1/txt2imgv2
+message Txt2ImgV2Request {
+  // 是 生图的文本描述。仅支持中文、日常标点符号。不支持英文，特殊符号，限制 200 字
+  string prompt = 1;
+  // 否 模型版本，支持 v1、v2，默认为v2，v2 为最新模型，比 v1 在准确度、精细度上有比较明显的提升，且 v2 支持更多尺寸
+  string version = 2;
+  // 是 图片宽度，v1 版本支持：1024x1024、1280x720、720x1280、2048x2048、2560x1440、1440x2560；v2 版本支持：512x512、640x360、360x640、1024x1024、1280x720、720x1280、2048x2048、2560x1440、1440x2560
+  uint32 width = 3;
+  // 是 图片高度，v1 版本支持：1024x1024、1280x720、720x1280、2048x2048、2560x1440、1440x2560；v2 版本支持：512x512、640x360、360x640、1024x1024、1280x720、720x1280、2048x2048、2560x1440、1440x2560
+  uint32 height = 4;
+  // 否 	number 	生成图片数量，默认一张，支持生成 1-8 张
+  int32 image_num = 5;
+  // 否，和url/pdf_file 三选一 参考图，需 base64 编码，大小不超过 10M，最短边至少 15px，最长边最大 8192px，支持jpg/jpeg/png/bmp 格式。优先级：image > url > pdf_file，当image 字段存在时，url、pdf_file 字段失效
+  string image = 6;
+  // 否，和image/pdf_file 三选一 参考图完整 url，url 长度不超过 1024 字节，url 对应的图片需 base64 编码，大小不超过 10M，最短边至少 15px，最长边最大8192px，支持 jpg/jpeg/png/bmp 格式。优先级：image > url > pdf_file，当image 字段存在时，url string 字段失效请注意关闭 = 1; URL 防盗链
+  string url = 7;
+  // 否，和image/url 三选一 参考图 PDF 文件，base64 编码，大小不超过10M，最短边至少 15px，最长边最大 8192px 。优先级：image > url > pdf_file，当image 字段存在时，url、pdf_file 字段失效
+  string pdf_file = 8;
+  // 否 需要识别的 PDF 文件的对应页码，当pdf_file 参数有效时，识别传入页码的对应页面内容，若不传入，则默认识别第 1 页
+  string pdf_file_num = 9;
+  // 否，当 image、url或 pdf_file 字段存在时，为必需项 参考图影响因子，支持 1-10 内；数值越大参考图影响越大
+  uint32 change_degree = 10;
+}
+
+message Txt2ImgV2Response {
+  message Data {
+    // 生成图片任务long类型 id，与“task_id”参数输出相同，该 id 可用于查询任务状态
+    uint64 primary_task_id = 1;
+    // 生成图片任务string类型 id，与“primary_task_id”参数输出相同，该 id 可用于查询任务状态
+    string task_id = 2;
+  }
+
+  // 请求唯一标识码
+  uint64 log_id = 1;
+  // 返回数据
+  Data data = 2;
+}
+
+message GetImgV2Request {
+  // 是 从提交请求的提交接口的返回值中获取，可使用task_id 查询总任务
+  string task_id = 1;
+}
+
+message GetImgV2Response {
+  message FinalImage {
+    // 是 图片所在 BOS http 地址，默认 1 小时失效
+    string img_url = 1;
+    // 是 图片像素信息-高度
+    uint32 height = 2;
+    // 是 图片像素信息-宽度
+    uint32 width = 3;
+    // 是 图片机审结果，"block"：输入图片违规；"review": 输入图片疑似违规；"pass": 输入图片未发现问题；
+    string img_approve_conclusion = 4;
+  }
+
+  message TaskResult {
+    // 是 单风格图片状态。有 INIT（初始化），WAIT（排队中）, RUNNING（生成中）, FAILED（失败）, SUCCESS（成功）四种状态，只有 SUCCESS 为成功状态，进行计费
+    string sub_task_status = 1;
+    // 否 单任务图片生成进度，进度包含2种，0为未处理完，1为处理完成
+    int32 sub_task_progress = 2;
+    // 是 单风格任务错误码。0:正常；501:文本黄反拦截；201:模型生图失败
+    string sub_task_error_code = 3;
+    // 是 	 [] 	单风格任务产出的最终图列表
+    FinalImage final_image_list = 4;
+  }
+
+  message Data {
+    // 是 任务 Id
+    uint64 task_id = 1;
+    // 是 计算总状态。有 INIT（初始化），WAIT（排队中）, RUNNING（生成中）, FAILED（失败）, SUCCESS（成功）四种状态，只有 SUCCESS 为成功状态，进行计费
+    string task_status = 2;
+    // 是 图片生成总进度，进度包含2种，0为未处理完，1为处理完成
+    int32 task_progress = 3;
+    // 是 	[] 	子任务生成结果列表
+    repeated TaskResult sub_task_result_list = 4;
+  }
+
+  // 是 请求唯一标识码
+  uint64 log_id = 1;
+  // 是 返回数据
+  Data data = 2;
+}

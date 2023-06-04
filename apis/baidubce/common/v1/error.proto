@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package baidubce.common.v1;
+
+option go_package = "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/common/v1;commonv1";
+option java_multiple_files = true;
+option java_outer_classname = "WenxinworkshopProto";
+option java_package = "com.qiniai.wenxin.baidubce.common.v1";
+
+message Error {
+  // 错误码。
+  int32 error_code = 1;
+  // 错误描述信息，帮助理解和解决发生的错误。
+  string error_msg = 2;
+}

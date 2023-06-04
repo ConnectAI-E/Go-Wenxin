@@ -36,4 +36,13 @@ service WenxinworkshopService {
     };
     option (google.api.method_signature) = "*";
   }
+
+  // TODO: find api
+  rpc Balance(BalanceRequest) returns (BalanceResponse) {
+    option (google.api.http) = {
+      post: "/rpc/2.0/ai_custom/v1/wenxinworkshop/balance"
+      body: "*"
+    };
+    option (google.api.method_signature) = "*";
+  }
 }
