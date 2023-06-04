@@ -152,3 +152,62 @@ func main() {
 
 ```
 </details>
+
+
+<details>
+<summary>ErnieBot history stream completion</summary>
+
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"github.com/ConnectAI-E/go-wenxin/baidubce"
+	ai_customv1 "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/ai_custom/v1"
+	baidubcev1 "github.com/ConnectAI-E/go-wenxin/gen/go/baidubce/v1"
+	"io"
+)
+
+//init client
+
+func main() {
+	ctx := context.Background()
+	var opts []baidubce.Option
+	opts = append(opts, baidubce.WithTokenRequest(&baidubcev1.TokenRequest{
+		GrantType:    "client_credentials",
+		ClientId:     "YOUR BAIDU_API Key",
+		ClientSecret: "YOUR BAIDU_SECRET Key",
+	}))
+	client, _ := baidubce.New(opts...)
+
+	//chat
+	req := &ai_customv1.ChatCompletionsRequest{
+		Stream: true,
+		Messages: []*ai_customv1.Message{
+			{Role: "user", Content: "推荐三本书"},
+			{Role: "assistant", Content: "1. 《活着》、《许三观卖血记》和《被掩埋的巨人》\n2. 《小王子》、《浮生六记》和《人类简史》\n3. 《百年孤独》、《查泰莱夫人的情人》和《1984》"},
+			{Role: "user",
+				Content: "从中选一本适合小朋友看的"},
+		},
+	}
+	stream, _ := client.ChatCompletionsStream(ctx, req)
+	defer stream.CloseSend()
+	for {
+		response, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+		fmt.Printf(response.Result) //建议选择《小王子》一书，这本书的故事简单易懂，讲述了一个外星王子来到地球上的经历，以及他与一朵玫瑰、一只狐狸之间的奇遇。这本书的插图也很精美，有助于小朋友理解故事情节。此外，《小王子》一书中的寓言和哲理也对小朋友有一定启示作用，帮助他们理解人性
+	}
+
+}
+
+
+```
+</details>
